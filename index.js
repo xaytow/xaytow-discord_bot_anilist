@@ -1,4 +1,5 @@
 import "dotenv/config";
+import http from "http";
 import { Client, GatewayIntentBits, EmbedBuilder, Partials } from "discord.js";
 import cron from "node-cron";
 import { getUserLists } from "./anilist.js";
@@ -11,6 +12,18 @@ if (!DISCORD_TOKEN || !DISCORD_USER_ID || !ANILIST_USERNAME) {
   process.exit(1);
 }
 
+// 1. Mini serveur HTTP pour satisfaire Render et garder le bot éveillé
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("Bot AniList actif !\n");
+});
+
+const PORT = process.env.PORT || 10000;
+server.listen(PORT, () => {
+  console.log(`🌍 Serveur HTTP actif sur le port ${PORT}`);
+});
+
+// 2. Configuration du client Discord
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
